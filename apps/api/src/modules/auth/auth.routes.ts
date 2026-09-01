@@ -49,22 +49,9 @@ router.post("/register", async (req, res) => {
         },
     });
     // create access token
-    const accessToken = jwt.sign(
-        {
-            sub: String(newUser.id),
-        },
-        process.env.JWT_ACCESS_SECRET!,
-        {
-            expiresIn: "15m",
-        },
-    );
+    const accessToken = createAccessToken(newUser.id);
     // set the token as cookie
-    res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000,
-    });
+    setAccessTokenCookie(res, accessToken);
     return res.status(201).json({
         message: "user created successfully",
         newUser,
