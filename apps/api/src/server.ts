@@ -1,6 +1,7 @@
 import express from "express";
 import "dotenv/config";
-import authRouter from "./modules/auth/auth.routes"
+import authRouter from "./modules/auth/auth.routes";
+import roomRouter from "./modules/rooms/room.routes";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -8,9 +9,9 @@ const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
 app.use(express.json());
-app.use(cookieParser())
-app.use("/auth", authRouter)
-
+app.use(cookieParser());
+app.use("/auth", authRouter);
+app.use("/v1/rooms", roomRouter);
 app.get("/health", (req, res) => {
     res.json({ status: "ok" });
 });
