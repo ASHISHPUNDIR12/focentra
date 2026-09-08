@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { verifyAccessToken } from "../modules/auth/auth.token";
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.accessToken;
@@ -11,15 +11,9 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET!);
+        const userId = verifyAccessToken(token);
 
-        if (typeof decoded === "string" || !decoded.sub) {
-            return res.status(401).json({
-                message: "Invalid token",
-            });
-        }
-
-        res.locals.userId = decoded.sub;
+        res.locals.userId = userId;
 
         next();
     } catch {
