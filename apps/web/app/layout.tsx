@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "./_providers/Authprovider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -20,7 +21,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
         <html lang="en">
-            <body className="">{children}</body>
+            <body className="bg-amber-50">
+                <AuthProvider>{children}</AuthProvider>
+            </body>
         </html>
     );
 }

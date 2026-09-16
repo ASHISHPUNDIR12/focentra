@@ -3,7 +3,8 @@ import SocketTest from "./components/Socket";
 export default function Home() {
   return (
     <div>
-      <SocketTest/>
+          {/*<SocketTest/>*/}
+          focentra
     </div>
   );
 }
