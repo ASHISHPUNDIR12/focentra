@@ -1,21 +1,16 @@
 "use client";
 
+import { useAuth } from "@/app/_providers/Authprovider";
 import { useRouter } from "next/navigation";
-import { useContext, useState, type SubmitEvent } from "react";
-import { AuthContext } from "../_providers/Authprovider";
+import { SubmitEvent, useState } from "react";
 
 const LoginPage = () => {
-    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
-    
-    const auth = useContext(AuthContext);
-    if (!auth) {
-        throw new Error("AuthContext must be used inside AuthProvider");
-    }
-    const { refreshUser } = auth;
+
+    const { refreshUser } = useAuth();
     const router = useRouter();
     async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -45,6 +40,7 @@ const LoginPage = () => {
             router.replace("/dashboard");
         } catch (error) {
             console.log(error);
+            setError("Unable to connect to the server");
         } finally {
             setIsSubmitting(false);
         }

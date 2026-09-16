@@ -1,28 +1,26 @@
 "use client";
-import {  useEffect } from "react";
+import { useEffect } from "react";
 import { useAuth } from "../_providers/Authprovider";
 import { useRouter } from "next/navigation";
 
-const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
+const GuestLayout = ({ children }: { children: React.ReactNode }) => {
     const router = useRouter();
-   
     const { user, loading, error } = useAuth();
     useEffect(() => {
-        if (!user && !loading && !error) {
-            router.replace("/login");
+        if (user && !loading && !error) {
+            router.replace("/dashboard");
         }
-    }, [user, loading, router, error]);          
+    }, [user, loading, error, router]);
 
     if (loading) {
-        return <p>loading........</p>;
+        return <>loading....</>;
     }
     if (error) {
         return <p>Unable to verify authentication. Please try again.</p>;
     }
-    if (!user) {
+    if (user) {
         return null;
     }
     return <>{children}</>;
 };
-
-export default ProtectedLayout;
+export default GuestLayout;

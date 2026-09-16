@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 type User = {
     id: number;
@@ -25,6 +25,14 @@ export const AuthContext = createContext<AuthContextType | undefined>(
     undefined,
 );
 
+export function useAuth() {
+    const auth = useContext(AuthContext);
+    if (!auth) {
+        throw new Error("useAuth must be used inside AuthProvider");
+    }
+    return auth;
+}
+
 async function fetchCurrentUser(): Promise<User | null> {
     const response = await fetch("http://localhost:3001/auth/me", {
         credentials: "include",
@@ -48,6 +56,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
     async function refreshUser() {
         setLoading(true);
+        setError(null);
         try {
             const currentUser = await fetchCurrentUser();
             setUser(currentUser);
@@ -65,9 +74,15 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
     useEffect(() => {
         async function loadUser() {
-            const currentUser = await fetchCurrentUser();
-            setUser(currentUser);
-            setLoading(false);
+            try {
+                const currentUser = await fetchCurrentUser();
+                setUser(currentUser);
+            } catch (error) {
+                console.error("Failed to load user:", error);
+                setError("Unable to check authentication");
+            } finally {
+                setLoading(false);
+            }
         }
         loadUser();
     }, []);

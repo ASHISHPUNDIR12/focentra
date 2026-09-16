@@ -1,16 +1,12 @@
 "use client";
-import { AuthContext } from "@/app/_providers/Authprovider";
+import { useAuth } from "@/app/_providers/Authprovider";
 import { useRouter } from "next/navigation";
-import { useContext } from "react";
 
 const Dashboard = () => {
     const router = useRouter();
-    const auth = useContext(AuthContext);
-    if (!auth) {
-        throw new Error("AuthContext must be used inside AuthProvider");
-    }
-    const { user, clearUser } = auth;
-    
+
+    const { user, clearUser } = useAuth();
+
     async function handleLogout() {
         try {
             const response = await fetch("http://localhost:3001/auth/logout", {
@@ -29,7 +25,6 @@ const Dashboard = () => {
         }
     }
 
-  
     return (
         <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6 sm:py-12">
             <div className="mx-auto max-w-3xl space-y-6">
