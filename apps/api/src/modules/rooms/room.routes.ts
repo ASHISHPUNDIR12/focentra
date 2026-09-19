@@ -248,6 +248,7 @@ router.get("/:roomId", requireAuth, async (req, res) => {
         },
         select: {
             id: true,
+            startedAt: true,
         },
     });
 
@@ -260,6 +261,9 @@ router.get("/:roomId", requireAuth, async (req, res) => {
     return res.status(200).json({
         message: "Room details",
         room,
+        session: {
+            startedAt: session.startedAt,
+        },
     });
 });
 

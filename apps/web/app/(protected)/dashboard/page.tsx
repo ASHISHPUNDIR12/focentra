@@ -2,11 +2,66 @@
 import { useAuth } from "@/app/_providers/Authprovider";
 import CreateRoom from "@/app/components/CreateRoom";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+type FocusSummaryResponse = {
+    totalFocusSeconds: number;
+    todayFocusSeconds: number;
+};
+
+function formatTime(totalSeconds: number) {
+    const hours = Math.floor(totalSeconds / 3600);
+
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    const seconds = Math.floor(totalSeconds % 60);
+
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+        2,
+        "0",
+    )}:${String(seconds).padStart(2, "0")}`;
+}
 
 const Dashboard = () => {
     const router = useRouter();
 
+    const [summary, setSummary] = useState<FocusSummaryResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
     const { user, clearUser } = useAuth();
+
+    useEffect(() => {
+        async function loadFocusSummary() {
+            try {
+                setLoading(true);
+                setError("");
+
+                const response = await fetch(
+                    "http://localhost:3001/v1/focus/summary",
+                    {
+                        credentials: "include",
+                    },
+                );
+
+                if (!response.ok) {
+                    setError("Unable to load focus summary");
+                    return;
+                }
+
+                const data: FocusSummaryResponse = await response.json();
+
+                setSummary(data);
+            } catch (error) {
+                console.error("Failed to load focus summary:", error);
+
+                setError("Unable to load focus summary");
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        loadFocusSummary();
+    }, []);
 
     async function handleLogout() {
         try {
@@ -24,6 +79,18 @@ const Dashboard = () => {
         } catch (error) {
             console.error("Unable to logout", error);
         }
+    }
+
+    if (loading) {
+        return <p>Loading dashboard...</p>;
+    }
+
+    if (error) {
+        return <p>{error}</p>;
+    }
+
+    if (!summary) {
+        return <p>Focus summary unavailable</p>;
     }
 
     return (
@@ -70,6 +137,20 @@ const Dashboard = () => {
                     </dl>
                 </section>
                 <CreateRoom />
+
+                <div>
+                    <h1>Dashboard</h1>
+
+                    <div>
+                        <h2>Today focus</h2>
+                        <p>{formatTime(summary.todayFocusSeconds)}</p>
+                    </div>
+
+                    <div>
+                        <h2>Total focus</h2>
+                        <p>{formatTime(summary.totalFocusSeconds)}</p>
+                    </div>
+                </div>
             </div>
         </main>
     );

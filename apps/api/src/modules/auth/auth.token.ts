@@ -14,7 +14,6 @@ export const verifyAccessToken = (token: string): number => {
     return userId;
 };
 
-
 export const createAccessToken = (user: number) => {
     const accessToken = jwt.sign(
         {
@@ -22,7 +21,7 @@ export const createAccessToken = (user: number) => {
         },
         process.env.JWT_ACCESS_SECRET!,
         {
-            expiresIn: "15m",
+            expiresIn: "120m",
         },
     );
     return accessToken;
@@ -33,7 +32,7 @@ export const setAccessTokenCookie = (res: Response, accessToken: string) => {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 15 * 60 * 1000,
+        maxAge: 120 * 60 * 1000,
     });
 };
 

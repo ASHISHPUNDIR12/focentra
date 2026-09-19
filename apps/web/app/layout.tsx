@@ -1,17 +1,7 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "./_providers/Authprovider";
-
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
+import SocketProvider from "./_providers/SocketProvider";
 
 export const metadata: Metadata = {
     title: "Create Next App",
@@ -22,7 +12,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
         <html lang="en">
             <body className="bg-amber-50">
-                <AuthProvider>{children}</AuthProvider>
+                <AuthProvider>
+                    <SocketProvider>{children}</SocketProvider>
+                </AuthProvider>
             </body>
         </html>
     );

@@ -64,7 +64,7 @@ const RoomCard = ({ title, activeMember, capacity, id }: RoomProps) => {
 
     return (
         <div className="w-full max-w-sm space-y-3 rounded-lg border border-gray-200 bg-white p-4 text-left shadow-sm">
-            <p className="break-words text-lg font-semibold text-gray-900">
+            <p className="wrap-break-words text-lg font-semibold text-gray-900">
                 {title}
             </p>
 
