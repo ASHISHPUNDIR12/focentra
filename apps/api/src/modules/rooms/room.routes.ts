@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
         capacity: 8,
     }));
     return res.status(200).json({
-       rooms :  formattedRooms,
+        rooms: formattedRooms,
     });
 });
 
@@ -211,6 +211,55 @@ router.post("/:roomId/leave", requireAuth, async (req, res) => {
     });
     return res.status(200).json({
         message: "left room succesfully",
+    });
+});
+
+router.get("/:roomId", requireAuth, async (req, res) => {
+    const roomId = Number(req.params.roomId);
+    const userId = Number(res.locals.userId);
+
+    if (!Number.isInteger(roomId) || roomId <= 0) {
+        return res.status(400).json({
+            message: "Invalid room id",
+        });
+    }
+
+    const room = await prisma.room.findUnique({
+        where: {
+            id: roomId,
+        },
+        select: {
+            id: true,
+            title: true,
+        },
+    });
+
+    if (!room) {
+        return res.status(404).json({
+            message: "Room does not exist",
+        });
+    }
+
+    const session = await prisma.focusSession.findFirst({
+        where: {
+            userId,
+            roomId,
+            endedAt: null,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!session) {
+        return res.status(403).json({
+            message: "You are not active in this room",
+        });
+    }
+
+    return res.status(200).json({
+        message: "Room details",
+        room,
     });
 });
 

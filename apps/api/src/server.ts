@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import "dotenv/config";
 import authRouter from "./modules/auth/auth.routes";
 import roomRouter from "./modules/rooms/room.routes";
@@ -9,6 +10,12 @@ import { initializeSocketServer } from "./realtime/socket";
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
 
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+    }),
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use("/auth", authRouter);

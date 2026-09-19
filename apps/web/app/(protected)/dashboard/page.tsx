@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@/app/_providers/Authprovider";
+import CreateRoom from "@/app/components/CreateRoom";
 import { useRouter } from "next/navigation";
 
 const Dashboard = () => {
@@ -68,6 +69,7 @@ const Dashboard = () => {
                         </div>
                     </dl>
                 </section>
+                <CreateRoom />
             </div>
         </main>
     );
