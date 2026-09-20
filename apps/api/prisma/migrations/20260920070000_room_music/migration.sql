@@ -1,0 +1,4 @@
+ALTER TABLE "Room"
+ADD COLUMN "musicTrack" TEXT,
+ADD COLUMN "musicStartedAt" TIMESTAMP(3),
+ADD COLUMN "musicRevision" INTEGER NOT NULL DEFAULT 0;

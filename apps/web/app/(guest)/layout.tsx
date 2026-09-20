@@ -13,10 +13,24 @@ const GuestLayout = ({ children }: { children: React.ReactNode }) => {
     }, [user, loading, error, router]);
 
     if (loading) {
-        return <>loading....</>;
+        return (
+            <main
+                className="mx-auto max-w-lg px-6 py-24 text-center text-muted"
+                role="status"
+            >
+                Getting your space ready…
+            </main>
+        );
     }
     if (error) {
-        return <p>Unable to verify authentication. Please try again.</p>;
+        return (
+            <main
+                className="mx-auto max-w-lg px-6 py-24 text-center text-muted"
+                role="alert"
+            >
+                Unable to verify authentication. Please try again.
+            </main>
+        );
     }
     if (user) {
         return null;

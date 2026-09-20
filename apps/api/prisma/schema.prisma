@@ -1,6 +1,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
+  importFileExtension = "js"
 }
 
 datasource db {
@@ -19,12 +20,15 @@ model User {
 }
 
 model Room {
-  id            Int            @id @default(autoincrement())
-  title         String
-  creatorId     Int
-  createdAt     DateTime       @default(now())
-  creator       User           @relation(fields: [creatorId], references: [id])
-  focusSessions FocusSession[]
+  id             Int            @id @default(autoincrement())
+  title          String
+  creatorId      Int
+  musicTrack     String?
+  musicStartedAt DateTime?
+  musicRevision  Int            @default(0)
+  createdAt      DateTime       @default(now())
+  creator        User           @relation(fields: [creatorId], references: [id])
+  focusSessions  FocusSession[]
 }
 
 model FocusSession {
@@ -33,6 +37,6 @@ model FocusSession {
   roomId    Int
   startedAt DateTime  @default(now())
   endedAt   DateTime?
-  user User @relation(fields: [userId], references: [id])
-  room Room @relation(fields: [roomId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  room      Room      @relation(fields: [roomId], references: [id])
 }

@@ -3,6 +3,14 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { socket } from "../../../lib/socket";
+import RoomMusic from "@/app/components/RoomMusic";
+import RoomHeader from "@/app/components/RoomHeader";
+import FocusTimer from "@/app/components/FocusTimer";
+import MemberList from "@/app/components/MemberList";
+import Link from "next/link";
+import Icon from "@/app/components/Icon";
+import { useAuth } from "@/app/_providers/Authprovider";
+import { useActiveRoom } from "@/app/_providers/SocketProvider";
 
 type Room = {
     id: number;
@@ -32,19 +40,11 @@ type PresenceUpdate = {
     }[];
 };
 
-function formatTime(totalSeconds: number) {
-    const hours = Math.floor(totalSeconds / 3600);
-
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-
-    const seconds = totalSeconds % 60;
-
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
-}
-
 const RoomPage = () => {
     const params = useParams<{ roomId: string }>();
     const router = useRouter();
+    const { user } = useAuth();
+    const { rememberRoom, clearRoom } = useActiveRoom();
 
     const [startedAt, setStartedAt] = useState<string | null>(null);
     const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -53,6 +53,9 @@ const RoomPage = () => {
     const [leaveError, setLeaveError] = useState("");
 
     const [roomDetail, setRoomDetail] = useState<Room | null>(null);
+    const [notifications, setNotifications] = useState<
+        { id: number; text: string }[]
+    >([]);
     const [presence, setPresence] = useState<PresenceUpdate | null>(null);
 
     const [loading, setLoading] = useState(true);
@@ -110,6 +113,7 @@ const RoomPage = () => {
                 console.log(data);
                 setRoomDetail(data.room);
                 setStartedAt(data.session.startedAt);
+                rememberRoom(data.room.id);
             } catch (error) {
                 console.error("Failed to load room:", error);
                 setError("Unable to load room");
@@ -119,13 +123,40 @@ const RoomPage = () => {
         }
 
         loadRoomDetails();
-    }, [roomId]);
+    }, [roomId, rememberRoom]);
 
     // Realtime presence
     useEffect(() => {
+        const timers = new Set<ReturnType<typeof setTimeout>>();
+        let sequence = 0;
         function handlePresenceUpdate(data: PresenceUpdate) {
-            setPresence(data);
+            if (data.roomId === Number(roomId)) setPresence(data);
         }
+        function handleNotification(data: {
+            roomId: number;
+            userId: number;
+            name: string | null;
+            action: "joined" | "left";
+        }) {
+            if (data.roomId !== Number(roomId) || data.userId === user?.id)
+                return;
+            const id = sequence++;
+            setNotifications((current) => [
+                ...current.slice(-3),
+                {
+                    id,
+                    text: `${data.name || "Someone"} ${data.action} the room`,
+                },
+            ]);
+            const timer = setTimeout(() => {
+                setNotifications((current) =>
+                    current.filter((item) => item.id !== id),
+                );
+                timers.delete(timer);
+            }, 4000);
+            timers.add(timer);
+        }
+        socket.on("room-notification", handleNotification);
 
         socket.on("presence-update", handlePresenceUpdate);
 
@@ -133,20 +164,10 @@ const RoomPage = () => {
 
         return () => {
             socket.off("presence-update", handlePresenceUpdate);
+            socket.off("room-notification", handleNotification);
+            timers.forEach(clearTimeout);
         };
-    }, []);
-
-    if (loading) {
-        return <p>Loading...</p>;
-    }
-
-    if (error) {
-        return <p>{error}</p>;
-    }
-
-    if (!roomDetail) {
-        return <p>Room unavailable</p>;
-    }
+    }, [roomId, user?.id]);
 
     async function handleLeaveRoom() {
         setIsLeaving(true);
@@ -169,6 +190,7 @@ const RoomPage = () => {
             }
 
             // FocusSession has ended in DB.
+            clearRoom();
             // Tell the socket server to re-check our active room.
             socket.emit("sync-room");
 
@@ -183,32 +205,103 @@ const RoomPage = () => {
     }
 
     return (
-        <div>
-            <h1>{roomDetail.title}</h1>
-
-            {presence ? (
-                <>
-                    <p>Members: {presence.activeMembers} / 8</p>
-
-                    <h2>Members</h2>
-
-                    {presence.members.map((member) => (
-                        <p key={member.id}>{member.name ?? "Anonymous"}</p>
-                    ))}
-                </>
-            ) : (
-                <p>Loading presence...</p>
+        <main
+            id="main-content"
+            className="mx-auto w-full max-w-[1260px] px-5 py-8 sm:px-8 lg:px-12 lg:py-10"
+        >
+            <div
+                role="status"
+                aria-live="polite"
+                aria-atomic="true"
+                className="pointer-events-none fixed right-5 bottom-5 z-50 flex max-w-sm flex-col gap-2"
+            >
+                {notifications.map((notification) => (
+                    <p
+                        key={notification.id}
+                        className="rounded-2xl border border-sage-200 bg-surface px-4 py-3 text-sm text-sage-800 shadow-clay"
+                    >
+                        {notification.text}
+                    </p>
+                ))}
+            </div>
+            <Link
+                href="/"
+                className="mb-7 inline-flex min-h-10 items-center gap-2 rounded-lg text-xs text-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-sage-600"
+            >
+                <Icon name="back" size={16} />
+                All study rooms
+            </Link>
+            {leaveError && (
+                <p
+                    className="mb-6 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-800"
+                    role="alert"
+                >
+                    {leaveError}
+                </p>
             )}
-
-            <p>Focus time: {formatTime(elapsedSeconds)}</p>
-
-            <button onClick={handleLeaveRoom} disabled={isLeaving}>
-                {isLeaving ? "Leaving..." : "Leave room"}
-            </button>
-
-            {leaveError && <p>{leaveError}</p>}
-        </div>
+            {loading ? (
+                <div
+                    className="rounded-[28px] bg-surface p-12 text-center text-sm text-muted shadow-clay motion-safe:animate-pulse"
+                    role="status"
+                >
+                    Getting your room ready…
+                </div>
+            ) : error || !roomDetail ? (
+                <div className="rounded-[28px] bg-surface p-10 text-center shadow-clay">
+                    <h1 className="mb-3 text-2xl font-bold">
+                        Room unavailable
+                    </h1>
+                    <p role="alert" className="text-sm text-muted">
+                        {error || "Room unavailable"}
+                    </p>
+                    <Link
+                        href="/"
+                        className="mt-5 inline-block rounded-lg p-2 text-sm font-semibold text-sage-700 underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-sage-600"
+                    >
+                        Back to rooms
+                    </Link>
+                </div>
+            ) : (
+                <>
+                    <header className="mb-8 flex flex-wrap items-start justify-between gap-5">
+                        <div className="min-w-0 flex-1">
+                            <p className="mb-3 text-[10px] font-bold tracking-[0.16em] text-sage-700">
+                                YOUR FOCUS SPACE
+                            </p>
+                            <h1 className="text-3xl leading-tight font-bold tracking-[-0.035em] wrap-anywhere sm:text-4xl">
+                                {roomDetail.title}
+                            </h1>
+                            <p className="mt-3 text-sm text-muted">
+                                Settle in. Let the rest wait.
+                            </p>
+                        </div>
+                        <RoomHeader
+                            onLeave={handleLeaveRoom}
+                            isLeaving={isLeaving}
+                            disabled={loading || !roomDetail}
+                        />
+                    </header>
+                    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(280px,1fr)]">
+                        <FocusTimer seconds={elapsedSeconds} user={user} />
+                        {presence ? (
+                            <MemberList
+                                members={presence.members}
+                                activeMembers={presence.activeMembers}
+                                currentUserId={user?.id}
+                            />
+                        ) : (
+                            <section
+                                className="rounded-[26px] bg-surface p-8 text-sm text-muted shadow-clay"
+                                role="status"
+                            >
+                                Loading members…
+                            </section>
+                        )}
+                    </div>
+                    <RoomMusic key={roomDetail.id} roomId={roomDetail.id} userId={user?.id} />
+                </>
+            )}
+        </main>
     );
 };
-
 export default RoomPage;

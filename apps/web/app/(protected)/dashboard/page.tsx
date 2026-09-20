@@ -1,7 +1,11 @@
 "use client";
-import { useAuth } from "@/app/_providers/Authprovider";
 import CreateRoom from "@/app/components/CreateRoom";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import Icon from "@/app/components/Icon";
+import { useAuth } from "@/app/_providers/Authprovider";
+import { useActiveRoom } from "@/app/_providers/SocketProvider";
+import FocusStatCard from "@/app/components/FocusStatCard";
 import { useEffect, useState } from "react";
 
 type FocusSummaryResponse = {
@@ -9,26 +13,12 @@ type FocusSummaryResponse = {
     todayFocusSeconds: number;
 };
 
-function formatTime(totalSeconds: number) {
-    const hours = Math.floor(totalSeconds / 3600);
-
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-
-    const seconds = Math.floor(totalSeconds % 60);
-
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
-        2,
-        "0",
-    )}:${String(seconds).padStart(2, "0")}`;
-}
-
 const Dashboard = () => {
-    const router = useRouter();
-
+    const { user } = useAuth();
+    const { activeRoomId } = useActiveRoom();
     const [summary, setSummary] = useState<FocusSummaryResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const { user, clearUser } = useAuth();
 
     useEffect(() => {
         async function loadFocusSummary() {
@@ -63,99 +53,99 @@ const Dashboard = () => {
         loadFocusSummary();
     }, []);
 
-    async function handleLogout() {
-        try {
-            const response = await fetch("http://localhost:3001/auth/logout", {
-                method: "POST",
-                credentials: "include",
-            });
-            if (!response.ok) {
-                console.log("Logout failed");
-                return;
-            }
-            console.log(response);
-            clearUser();
-            router.replace("/login");
-        } catch (error) {
-            console.error("Unable to logout", error);
-        }
-    }
-
-    if (loading) {
-        return <p>Loading dashboard...</p>;
-    }
-
-    if (error) {
-        return <p>{error}</p>;
-    }
-
-    if (!summary) {
-        return <p>Focus summary unavailable</p>;
-    }
-
+    // Read the existing summary as before; this layout only changes its hierarchy.
     return (
-        <main className="min-h-screen bg-slate-100 px-4 py-8 text-slate-900 sm:px-6 sm:py-12">
-            <div className="mx-auto max-w-3xl space-y-6">
-                <header className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <p className="text-sm font-semibold text-indigo-600">
-                            Focentra
-                        </p>
-                        <h1 className="mt-1 text-2xl font-semibold tracking-tight">
-                            Dashboard
-                        </h1>
-                    </div>
-                    <button
-                        onClick={handleLogout}
-                        className="cursor-pointer rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-red-200 hover:bg-red-50 hover:text-red-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                    >
-                        Log out
-                    </button>
-                </header>
-                <section className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                    <h2 className="text-xl font-semibold">
-                        Welcome, {user?.name || "there"}!
-                    </h2>
-                    <p className="mt-2 text-sm text-slate-600">
-                        Here are your account details.
-                    </p>
-                    <dl className="mt-6 space-y-4 border-t border-slate-100 pt-6">
-                        <div>
-                            <dt className="text-sm font-medium text-slate-500">
-                                Name
-                            </dt>
-                            <dd className="mt-1 break-words">
-                                {user?.name || "Not set"}
-                            </dd>
-                        </div>
-                        <div>
-                            <dt className="text-sm font-medium text-slate-500">
-                                Email
-                            </dt>
-                            <dd className="mt-1 break-words">{user?.email}</dd>
-                        </div>
-                    </dl>
-                </section>
-                <CreateRoom />
-
+        <main
+            id="main-content"
+            className="mx-auto w-full max-w-[1260px] px-5 py-8 sm:px-8 lg:px-12 lg:py-10"
+        >
+            <header className="mb-8 flex flex-wrap items-center justify-between gap-5">
                 <div>
-                    <h1>Dashboard</h1>
-
-                    <div>
-                        <h2>Today focus</h2>
-                        <p>{formatTime(summary.todayFocusSeconds)}</p>
-                    </div>
-
-                    <div>
-                        <h2>Total focus</h2>
-                        <p>{formatTime(summary.totalFocusSeconds)}</p>
-                    </div>
+                    <p className="mb-3 text-[10px] font-bold tracking-[0.16em] text-muted">
+                        A FRESH LITTLE START
+                    </p>
+                    <h1 className="text-[clamp(1.8rem,3vw,2.45rem)] leading-tight font-bold tracking-[-0.035em] wrap-anywhere">
+                        Good to see you,{" "}
+                        {user?.name?.trim().split(" ")[0] || "friend"}.
+                    </h1>
+                    <p className="mt-3 text-sm text-muted">
+                        Let’s make a little room for what matters.
+                    </p>
                 </div>
-            </div>
+                <CreateRoom />
+            </header>
+            <section
+                className="mb-7 grid overflow-hidden rounded-[28px] border border-white bg-sage-100 shadow-clay-hero sm:grid-cols-[1.15fr_1fr]"
+                aria-label="Find your focus space"
+            >
+                <div className="px-7 py-8 lg:px-9">
+                    <span className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 text-[10px] font-bold tracking-wide text-sage-700">
+                        <Icon name="leaf" size={13} />
+                        {activeRoomId
+                            ? "YOUR FOCUS ROOM IS WAITING"
+                            : "YOUR NEXT SMALL WIN"}
+                    </span>
+                    <h2 className="mt-4 mb-3 text-[clamp(1.7rem,2.6vw,2.25rem)] leading-tight font-bold tracking-[-0.035em]">
+                        Big things start
+                        <br />
+                        with a little focus.
+                    </h2>
+                    <p className="max-w-sm text-[13px] leading-7 text-muted">
+                        Find a cozy room, settle in with a few good minds, and
+                        take it one thing at a time.
+                    </p>
+                    <Link
+                        className="mt-6 inline-flex min-h-11 items-center gap-3 rounded-2xl bg-sage-600 px-5 py-3 text-xs font-semibold text-white shadow-clay-button transition hover:bg-sage-700 active:translate-y-px focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sage-600 motion-reduce:transition-none"
+                        href={activeRoomId ? `/rooms/${activeRoomId}` : "/"}
+                    >
+                        {activeRoomId ? "Return to room" : "Find a study room"}
+                        <Icon name="arrow" size={17} />
+                    </Link>
+                </div>
+                <Image
+                    className="hidden h-full max-h-[330px] w-full self-center object-contain px-3 mix-blend-multiply sm:block"
+                    src="/art/study-desk.png"
+                    alt=""
+                    width={1536}
+                    height={1024}
+                    sizes="(max-width: 640px) 1px, 450px"
+                    priority
+                />
+            </section>
+            <section aria-label="Focus statistics">
+                {loading ? (
+                    <div
+                        className="rounded-3xl bg-surface p-8 text-center text-sm text-muted shadow-clay motion-safe:animate-pulse"
+                        role="status"
+                    >
+                        Loading your focus time…
+                    </div>
+                ) : error ? (
+                    <div
+                        className="rounded-2xl bg-rose-50 p-5 text-sm text-rose-800"
+                        role="alert"
+                    >
+                        {error}
+                    </div>
+                ) : summary ? (
+                    <dl className="grid grid-cols-2 gap-3 sm:gap-5">
+                        <FocusStatCard
+                            label="Today’s focus"
+                            seconds={summary.todayFocusSeconds}
+                        />
+                        <FocusStatCard
+                            label="All-time focus"
+                            seconds={summary.totalFocusSeconds}
+                            total
+                        />
+                    </dl>
+                ) : (
+                    <p className="py-8 text-muted">
+                        Focus summary unavailable.
+                    </p>
+                )}
+            </section>
         </main>
     );
 };
 export default Dashboard;
-
-// erenyeager4@example.com
-// mikasaaa

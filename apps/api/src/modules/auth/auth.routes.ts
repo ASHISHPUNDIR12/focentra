@@ -1,13 +1,13 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import { loginSchema, registerSchema } from "./auth.schema";
-import { prisma } from "../../lib/prisma";
-import { requireAuth } from "../../middleware/auth.middleware";
+import { loginSchema, registerSchema } from "./auth.schema.js";
+import { prisma } from "../../lib/prisma.js";
+import { requireAuth } from "../../middleware/auth.middleware.js";
 import {
     clearAccessTokenCookie,
     createAccessToken,
     setAccessTokenCookie,
-} from "./auth.token";
+} from "./auth.token.js";
 
 const router = Router();
 

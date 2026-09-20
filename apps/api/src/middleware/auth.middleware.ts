@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { verifyAccessToken } from "../modules/auth/auth.token";
+import { verifyAccessToken } from "../modules/auth/auth.token.js";
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
     const token = req.cookies.accessToken;

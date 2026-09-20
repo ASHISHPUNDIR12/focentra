@@ -1,19 +1,36 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Shared design tokens only. Component styling lives in Tailwind utilities. */
+@theme {
+    --color-peach: #f5e8dc;
+    --color-lavender: #eeeaf5;
+    --shadow-clay-hero:
+        inset 2px 2px 5px #ffffff99, inset -2px -3px 8px #8f9d6b0d,
+        0 5px 15px #344d3910;
+    --color-canvas: #f6f5f0;
+    --color-surface: #fffefa;
+    --color-sidebar: #eeefe7;
+    --color-ink: #293b34;
+    --color-muted: #68766b;
+    --color-sage-50: #f2f4ed;
+    --color-sage-100: #e7ebde;
+    --color-sage-200: #dce5d1;
+    --color-sage-300: #b4c9a7;
+    --color-sage-400: #93b08c;
+    --color-sage-500: #739678;
+    --color-sage-600: #426d58;
+    --color-sage-700: #42644e;
+    --color-sage-800: #34513e;
+    --color-sage-900: #293d34;
+    --font-sans:
+        ui-rounded, "Avenir Next", "Trebuchet MS", system-ui, sans-serif;
+    --shadow-clay:
+        0 6px 18px #344d3a06, 0 1px 2px #344d3a04, inset 0 1px 0 #ffffff;
+    --shadow-clay-button:
+        0 4px 7px #344d3a14, inset 0 2px 2px #ffffff30,
+        inset 0 -2px 3px #203c3220;
+    --shadow-clay-inset: inset 0 1px 3px #344d3a06;
+    --shadow-clay-icon:
+        0 4px 9px #344d3a0d, inset 2px 3px 6px #ffffffcc,
+        inset -2px -3px 5px #344d3a12;
 }
