@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     title: "Focentra — A little space to focus",
     description:
         "Find a focus room, settle in, and make time for what matters.",
+    icons: {
+        icon: "/icon.svg",
+    },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
