@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../lib/config";
 import { useState } from "react";
 import Icon from "./Icon";
 import { useRouter } from "next/navigation";
@@ -48,7 +49,7 @@ const RoomCard = ({ title, activeMember, capacity, id }: RoomProps) => {
             setError("");
 
             const response = await fetch(
-                `http://localhost:3001/v1/rooms/${id}/join`,
+                `${API_URL}/v1/rooms/${id}/join`,
                 {
                     method: "POST",
                     credentials: "include",

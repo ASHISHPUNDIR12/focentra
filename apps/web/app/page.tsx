@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "./lib/config";
 import { useEffect, useState } from "react";
 import RoomCard from "./components/RoomCard";
 import CreateRoom from "./components/CreateRoom";
@@ -44,7 +45,7 @@ export default function Home() {
                 setLoading(true);
                 setError(null);
 
-                const response = await fetch("http://localhost:3001/v1/rooms", {
+                const response = await fetch(`${API_URL}/v1/rooms`, {
                     signal: controller.signal,
                 });
 

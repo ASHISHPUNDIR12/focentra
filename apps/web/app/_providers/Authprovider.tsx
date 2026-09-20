@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../lib/config";
 import { createContext, useContext, useEffect, useState } from "react";
 
 type User = {
@@ -34,7 +35,7 @@ export function useAuth() {
 }
 
 async function fetchCurrentUser(): Promise<User | null> {
-    const response = await fetch("http://localhost:3001/auth/me", {
+    const response = await fetch(`${API_URL}/auth/me`, {
         credentials: "include",
     });
     console.log("status", response.status);

@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../lib/config";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -19,7 +20,7 @@ export default function AppHeader({ minimal = false }: { minimal?: boolean }) {
         setLoggingOut(true);
         setError("");
         try {
-            const response = await fetch("http://localhost:3001/auth/logout", {
+            const response = await fetch(`${API_URL}/auth/logout`, {
                 method: "POST",
                 credentials: "include",
             });

@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../../lib/config";
 import { useAuth } from "@/app/_providers/Authprovider";
 import Link from "next/link";
 import AuthLayout from "@/app/components/AuthLayout";
@@ -20,7 +21,7 @@ const LoginPage = () => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("http://localhost:3001/auth/login", {
+            const response = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

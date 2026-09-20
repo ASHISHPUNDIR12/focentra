@@ -1,4 +1,5 @@
 "use client";
+import { API_URL } from "../../lib/config";
 import CreateRoom from "@/app/components/CreateRoom";
 import Link from "next/link";
 import Image from "next/image";
@@ -27,7 +28,7 @@ const Dashboard = () => {
                 setError("");
 
                 const response = await fetch(
-                    "http://localhost:3001/v1/focus/summary",
+                    `${API_URL}/v1/focus/summary`,
                     {
                         credentials: "include",
                     },

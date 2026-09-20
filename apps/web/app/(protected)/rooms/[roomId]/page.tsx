@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../../../lib/config";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { socket } from "../../../lib/socket";
@@ -95,7 +96,7 @@ const RoomPage = () => {
                 setRoomDetail(null);
 
                 const response = await fetch(
-                    `http://localhost:3001/v1/rooms/${roomId}`,
+                    `${API_URL}/v1/rooms/${roomId}`,
                     {
                         credentials: "include",
                     },
@@ -175,7 +176,7 @@ const RoomPage = () => {
 
         try {
             const response = await fetch(
-                `http://localhost:3001/v1/rooms/${roomId}/leave`,
+                `${API_URL}/v1/rooms/${roomId}/leave`,
                 {
                     method: "POST",
                     credentials: "include",

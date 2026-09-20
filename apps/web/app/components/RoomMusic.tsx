@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../lib/config";
 import { useEffect, useRef, useState } from "react";
 import { socket } from "../lib/socket";
 import { readApiResponse } from "../lib/api-response";
@@ -59,7 +60,7 @@ export default function RoomMusic({
             const sentAt = Date.now();
             try {
                 const response = await fetch(
-                    `http://localhost:3001/v1/rooms/${roomId}/music`,
+                    `${API_URL}/v1/rooms/${roomId}/music`,
                     {
                         credentials: "include",
                         signal: controller.signal,
@@ -198,7 +199,7 @@ export default function RoomMusic({
         setError("");
         try {
             const response = await fetch(
-                `http://localhost:3001/v1/rooms/${roomId}/music`,
+                `${API_URL}/v1/rooms/${roomId}/music`,
                 {
                     method: "PATCH",
                     credentials: "include",

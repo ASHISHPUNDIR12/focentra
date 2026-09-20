@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../lib/config";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -67,7 +68,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         setBusy(true);
         setLogoutError("");
         try {
-            const response = await fetch("http://localhost:3001/auth/logout", {
+            const response = await fetch(`${API_URL}/auth/logout`, {
                 method: "POST",
                 credentials: "include",
             });

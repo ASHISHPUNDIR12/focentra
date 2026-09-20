@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../lib/config";
 import { SubmitEvent, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useActiveRoom } from "../_providers/SocketProvider";
@@ -43,7 +44,7 @@ const CreateRoom = ({ onCreated }: { onCreated?: () => void }) => {
         setIsSubmitting(true);
 
         try {
-            const response = await fetch("http://localhost:3001/v1/rooms", {
+            const response = await fetch(`${API_URL}/v1/rooms`, {
                 method: "POST",
                 credentials: "include",
                 headers: {

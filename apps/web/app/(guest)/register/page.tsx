@@ -1,5 +1,6 @@
 "use client";
 
+import { API_URL } from "../../lib/config";
 import { useAuth } from "@/app/_providers/Authprovider";
 import Link from "next/link";
 import AuthLayout from "@/app/components/AuthLayout";
@@ -21,7 +22,7 @@ const RegisterPage = () => {
         setIsSubmitting(true);
         try {
             const response = await fetch(
-                "http://localhost:3001/auth/register",
+                `${API_URL}/auth/register`,
                 {
                     method: "POST",
                     headers: {
